@@ -1,0 +1,10 @@
+<h2>All available tags</h2>
+
+<% tags.forEach(function(t){%>
+    <p>
+        <a href="/tags/<% t.id %>">
+        <%= t.name %>
+        </a>
+    </p>
+
+<% }); %>

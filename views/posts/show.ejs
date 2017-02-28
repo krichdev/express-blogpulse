@@ -6,6 +6,36 @@
 
 <p><%= post.content %></p>
 
+<strong>Tags:</strong>
+
+<% post.tags.forEach(function(t){ %>
+    <a href="/tags/<%= t.id %>">
+      #<%= t.name %>
+    </a>
+<% }); %>
+
 <hr />
+
+<h2>Comments - Tell Us Your Thoughts</h2>
+<div class="well">
+  <% post.comments.forEach(function(comment){ %>
+    <div>
+      <p><%= comment.content %></p>
+      <p>&mdash;<%= comment.name %></p>
+    </div>
+  <% }); %>
+
+</div>
+
+<form class="form-group" action="/comments" method="POST">
+  Comment: <br>
+  <textarea name="content" class="form-control" rows="10" cols="80"></textarea>
+  <br>
+  Name: <br>
+  <input type="text" name="name" class="form-control" placeholder="Enter Name">
+  <br>
+  <input type="hidden" name="postid" value="<%= post.id %>">
+  <input type="submit" class="btn btn-success" name="submit">
+</form>
 
 <a href="/">&larr; Back Home</a>

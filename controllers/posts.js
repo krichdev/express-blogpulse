@@ -1,16 +1,40 @@
 var express = require('express');
 var db = require('../models');
+var async = require('async');
 var router = express.Router();
 
 // POST /posts - create a new post
 router.post('/', function(req, res) {
+  var tags = [];
+  if(req.body.tags){
+    tags = req.body.tags.split(",");
+  }
+
   db.post.create({
     title: req.body.title,
     content: req.body.content,
     authorId: req.body.authorId
   })
   .then(function(post) {
-    res.redirect('/');
+    if(tags.length > 0){
+    // Add tags with async
+    async.forEachSeries(tags, function(t, callback){
+          db.tag.findOrCreate({
+            where: {name: t.trim()}
+          }).spread(function(newTag, wasCreated){
+            if(newTag){
+              post.addTag(newTag)
+            }
+            callback(null);
+          });
+    }, function(){
+      //Runs when everything is finished
+      res.redirect('/posts/' + post.id);
+    }); //End of forEachSeries
+  }
+    else {
+      res.redirect('/posts/' + post.id);
+    }
   })
   .catch(function(error) {
     res.status(400).render('main/404');
@@ -32,7 +56,7 @@ router.get('/new', function(req, res) {
 router.get('/:id', function(req, res) {
   db.post.find({
     where: { id: req.params.id },
-    include: [db.author]
+    include: [db.author, db.comment]
   })
   .then(function(post) {
     if (!post) throw Error();
